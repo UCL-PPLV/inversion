@@ -73,6 +73,9 @@ Qed.
 
 (* Okay, now how to do the same with an indexed type family *)
 
+(* TODO: Try something complicatd. Dominique suggested to implement a
+   per-family ordereing on fins. *)
+
 (* An indexed family for the finite type *)
 Inductive Fin' : nat -> Set :=
   F1' : forall n : nat, Fin' (n.+1)
