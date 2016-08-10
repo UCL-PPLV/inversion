@@ -77,6 +77,59 @@ exists C1=>l.
 by simpl; apply: castK.
 Qed.
 
+Set Injection On Proofs.
+
+
+(* A simpler version of the same goal, with "get" stripped off *)
+Lemma X : forall (G : state (pType {| pType := False; pState := mt_state |}) = state False),
+    cast (state (pType {| pType := False; pState := mt_state |}))
+         (state False) G mt_state = mt_state.
+have E: pType {| pType := False; pState := mt_state |} = False by [].
+rewrite /cast.
+
+(* Okay, how can we now rewrite the equality in the type of G without
+   reducing it explicitly? *)
+
+
+Lemma Y : forall l (C1 : coh1 [::] [::]),
+  coherent (get mt_world [::] l)
+    (cast (state (pType (get {| pType := False; pState := mt_state |} [::] l)))
+       (state (wType (get mt_world [::] l))) (cohE [::] [::] C1 l)
+       (pState (get {| pType := False; pState := mt_state |} [::] l))).
+move=>l C1.
+move: (get_mt {| pType := False; pState := mt_state |} l) => H. 
+
+(*
+
+"injection" is Coq's standard tactic, ssreflect's version would be
+"case". See ssrfelect manual for the explanation of the relation
+vetween the two (https://hal.inria.fr/inria-00258384)
+
+After trying it, the following cryptic message is given:
+
+"Error: No information can be deduced from this equality and the
+injectivity of constructors. This may be because the terms are
+convertible, or due to pattern matching restrictions in the sort
+Prop."
+
+Perhaps, we should investigate how the injection works here. According
+to Adam's page
+
+http://adam.chlipala.net/itp/tactic-reference.html
+
+the equality shoud be indeed between elements of two constructors,
+but, here there are no constructors, jsut the equality.
+
+*)
+
+injection H.
+
+
+
+Defined.
+Print X.
+
+
 (* However, an attempt to prove it by rewriting gloriously fails: *)
 Lemma coh_empty' : coh [::] [::].
 Proof.
@@ -84,6 +137,7 @@ have C1: coh1 [::] [::] by [].
 exists C1=>l.
 (* let's now do some rewriting in the goal, but no simplification: *)
 rewrite /gets/getw.
+
 
 (* The following rewriting should fire in the goal, although it
 doesn't, and fails on the dependent error. *)
@@ -104,9 +158,7 @@ dependent rewrite -> X.
 
  *)
 
-
-Qed.
-
+Admitted.
 
 
 
@@ -140,6 +192,7 @@ by rewrite get_cat.
 have Ew: get mt_world (w1 ++ w2) l =
    if l \in keys s1 then get mt_world w1 l else get mt_world w2 l
 by rewrite get_cat; case: (C1); case=>H1 G1 _; rewrite H1.
+
 
 
 (* Butwe can't because of the depented type error! *)

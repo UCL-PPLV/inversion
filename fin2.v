@@ -69,8 +69,7 @@ Definition NoConfusion_nat (x y : nat) : Type :=
     | S x, S y => x = y
   end.
 
-Check eq_rect.
-
+(* See McBride-al:TYPES04 *)
 Definition noConfusion_nat (x y : nat) :
   x = y -> NoConfusion_nat x y := 
   (match x return forall y, x = y -> NoConfusion_nat x y with
@@ -103,15 +102,19 @@ Definition noConf_nat_linv (x y : nat) (e : x = y) : noConfInv_nat x y (noConfus
 Set Implicit Arguments.
 
 
-Definition injectivity_nat_suc : forall x y (P : S x = S y -> Type) (H : forall (e : x = y), P (noConfInv_nat (S x) (S y) e)) (e : S x = S y), P e.
+Definition injectivity_nat_suc :
+  forall x y (P : S x = S y -> Type)
+         (H : forall (e : x = y), P (noConfInv_nat (S x) (S y) e))
+         (e : S x = S y), P e.
   move=> x y P H e.
-  refine (eq_rect (noConfInv_nat (S x) (S y) (noConfusion_nat (S x) (S y) e)) P (H (noConfusion_nat (S x) (S y) e)) e _).
+  refine (eq_rect (noConfInv_nat (S x) (S y) (noConfusion_nat (S x) (S y) e))
+                  P (H (noConfusion_nat (S x) (S y) e)) e _).
   by apply noConf_nat_linv.
 Defined.
-  
+
 Lemma fin1_eq (f1 f2 : Fin 1) : f1 = f2.
-  case: f1=>m; refine (injectivity_nat_suc _ _) => e; subst m; last by case.
-  case: f2=> m'; refine (injectivity_nat_suc _ _) => e; subst m'; by [done | case].
+  case: f1=>m; refine (injectivity_nat_suc _ _)=> e; subst m; last by case.
+  by case: f2=> m'; refine (injectivity_nat_suc _ _) => e; subst m'=>//=; case. 
 Qed.
 
 (* old fin1_eq proof was 2 lines longer:
