@@ -48,7 +48,7 @@ Definition coh1 (w : worlds) (s : pstates) :=
 
 Definition cast (t t' : Type) (r : t = t') (e : t) : t' :=
   match r in (_ = t') return t' with erefl => e end.
-
+  
 Require Import Eqdep.
 Definition castK m (r : m = m) (e : m) : cast _ _ r e = e.
 Proof. by move: r; apply: Streicher_K. Qed.
@@ -86,6 +86,8 @@ Lemma X : forall (G : state (pType {| pType := False; pState := mt_state |}) = s
          (state False) G mt_state = mt_state.
 have E: pType {| pType := False; pState := mt_state |} = False by [].
 rewrite /cast.
+
+injection E.
 
 (* Okay, how can we now rewrite the equality in the type of G without
    reducing it explicitly? *)
